@@ -21,6 +21,32 @@ void cursorStop()
 	}
 }
 
+enum class CursorOverColor
+{
+	Red,
+	Yellow,
+	Green,
+	Gray
+};
+
+CursorOverColor getCursorOverColorType(Rect& cursor)
+{
+	if (375 <= cursor.x && cursor.x <= 425) return CursorOverColor::Red;
+	if (250 <= cursor.x && cursor.x <= 550) return CursorOverColor::Yellow;
+	if (100 <= cursor.x && cursor.x <= 700) return CursorOverColor::Green;
+	return CursorOverColor::Gray;
+}
+
+void score(Rect& cursor)
+{
+	if (!isCursorStop) return;
+	CursorOverColor color = getCursorOverColorType(cursor);
+	if (color == CursorOverColor::Red) Print << U"Red";
+	if (color == CursorOverColor::Yellow) Print << U"Yellow";
+	if (color == CursorOverColor::Green) Print << U"Green";
+	if (color == CursorOverColor::Gray) Print << U"Gray";
+}
+
 void Main()
 {
 	Scene::SetBackground(ColorF{Palette::Gray});
@@ -35,6 +61,7 @@ void Main()
 
 		cursorUpdate(cursor);
 		cursorStop();
+		score(cursor);
 
 	}
 }
