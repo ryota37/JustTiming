@@ -1,10 +1,12 @@
 ﻿# include <Siv3D.hpp> // Siv3D v0.6.15
 
-void cursorUpdate(Rect& cursor, bool isCursorStop, double sin)
+# include <cmath>
+
+void cursorUpdate(Rect& cursor, bool isCursorStop, double periodicValue)
 {
 	if (!isCursorStop)
 	{
-		cursor.x = 400 * sin + 400;
+		cursor.x = 400 * periodicValue + 400;
 	}
 	cursor.draw(Palette::Black);
 }
@@ -13,7 +15,7 @@ void cursorStop(bool& isCursorStop)
 {
 	if (KeyEnter.down())
 	{
-		isCursorStop = true;
+		isCursorStop = !isCursorStop;
 	}
 }
 
@@ -43,14 +45,23 @@ void score(Rect& cursor, bool isCursorStop)
 	if (color == CursorOverColor::Gray) Print << U"Gray";
 }
 
-void restart(bool& isCursorStop, Rect& cursor, double& sin)
+void restart(bool& isCursorStop, Rect& cursor, double& periodicValue)
 {
 	if (KeySpace.pressed())
 	{
 		isCursorStop = false;
 		cursor = Rect{ Arg::center(Scene::Center().x, Scene::Center().y), 20, 50 };
-		sin = 0.0;
+		periodicValue = 0.0;
 	}
+}
+
+double generatePeriodicValue(bool& CursorStop, double& angle_rad)
+{
+	if (!CursorStop)
+	{
+		angle_rad += Scene::DeltaTime();
+	}
+	return sin(angle_rad);
 }
 
 void Main()
@@ -58,18 +69,20 @@ void Main()
 	bool isCursorStop = false;
 	Scene::SetBackground(ColorF{Palette::Gray});
 	Rect cursor = Rect{ Arg::center(Scene::Center().x, Scene::Center().y), 20, 50 };
+	double angle_rad = 0.0;
 
 	while (System::Update())
 	{
-		double sin = Periodic::Triangle1_1(2s);
+		double periodicValue = generatePeriodicValue(isCursorStop, angle_rad);
+
 		Rect{ Arg::center(Scene::Center().x, Scene::Center().y), 600, 50 }.draw(Palette::Green);
 		Rect{ Arg::center(Scene::Center().x, Scene::Center().y), 300, 50 }.draw(Palette::Yellow);
 		Rect{ Arg::center(Scene::Center().x, Scene::Center().y), 50, 50 }.draw(Palette::Red);
 
-		cursorUpdate(cursor, isCursorStop, sin);
+		cursorUpdate(cursor, isCursorStop, periodicValue);
 		cursorStop(isCursorStop);
 		score(cursor, isCursorStop);
-		restart(isCursorStop, cursor, sin);
+		restart(isCursorStop, cursor, periodicValue);
 	}
 }
 
